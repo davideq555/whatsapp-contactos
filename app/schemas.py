@@ -22,8 +22,9 @@ class Cuenta(CuentaBase):
 # Esquemas para Etiqueta
 class EtiquetaBase(BaseModel):
     nombre: str
-    color: str
+    color: Optional[str]
     cuenta_id: int
+    id: int
 
 class EtiquetaCreate(EtiquetaBase):
     pass
