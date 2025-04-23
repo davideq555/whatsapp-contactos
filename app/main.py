@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
 
+from .security import validate_api_key
 from . import models, schemas
 from .database import engine, get_db
 
@@ -13,7 +14,7 @@ app = FastAPI(title="WhatsApp Business API")
 ################################################################
 # Endpoints para Cuenta
 ################################################################
-@app.post("/cuentas/", response_model=schemas.Cuenta)
+@app.post("/cuentas/", response_model=schemas.Cuenta, dependencies=[Depends(validate_api_key)])
 def crear_cuenta(cuenta: schemas.CuentaCreate, db: Session = Depends(get_db)):
     db_cuenta = models.Cuenta(**cuenta.dict())
     db.add(db_cuenta)
@@ -21,12 +22,12 @@ def crear_cuenta(cuenta: schemas.CuentaCreate, db: Session = Depends(get_db)):
     db.refresh(db_cuenta)
     return db_cuenta
 
-@app.get("/cuentas/", response_model=List[schemas.Cuenta])
+@app.get("/cuentas/", response_model=List[schemas.Cuenta], dependencies=[Depends(validate_api_key)])
 def listar_cuentas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(models.Cuenta).offset(skip).limit(limit).all()
 
 # Buscar cuenta por instancia_evolution
-@app.get("/cuentas/instancia/{instancia_evolution}", response_model=schemas.Cuenta)
+@app.get("/cuentas/instancia/{instancia_evolution}", response_model=schemas.Cuenta, dependencies=[Depends(validate_api_key)])
 def buscar_cuenta_por_instancia(instancia_evolution: str, db: Session = Depends(get_db)):
     cuenta = db.query(models.Cuenta).filter(models.Cuenta.instancia_evolution == instancia_evolution).first()
     if not cuenta:
@@ -36,7 +37,7 @@ def buscar_cuenta_por_instancia(instancia_evolution: str, db: Session = Depends(
 ################################################################
 # Endpoints para Etiquetas
 ################################################################
-@app.post("/etiquetas/", response_model=schemas.Etiqueta)
+@app.post("/etiquetas/", response_model=schemas.Etiqueta, dependencies=[Depends(validate_api_key)])
 def crear_etiqueta(etiqueta: schemas.EtiquetaCreate, db: Session = Depends(get_db)):
     db_etiqueta = models.Etiqueta(**etiqueta.dict())
     db.add(db_etiqueta)
@@ -44,11 +45,11 @@ def crear_etiqueta(etiqueta: schemas.EtiquetaCreate, db: Session = Depends(get_d
     db.refresh(db_etiqueta)
     return db_etiqueta
 
-@app.get("/etiquetas/cuenta/{cuenta_id}", response_model=List[schemas.Etiqueta])
+@app.get("/etiquetas/cuenta/{cuenta_id}", response_model=List[schemas.Etiqueta], dependencies=[Depends(validate_api_key)])
 def listar_etiquetas_por_cuenta(cuenta_id: int, db: Session = Depends(get_db)):
     return db.query(models.Etiqueta).filter(models.Etiqueta.cuenta_id == cuenta_id).all()
 
-@app.delete("/etiquetas/{etiqueta_id}/{cuenta_id}")
+@app.delete("/etiquetas/{etiqueta_id}/{cuenta_id}", dependencies=[Depends(validate_api_key)])
 def eliminar_etiqueta(etiqueta_id: int, cuenta_id: int, db: Session = Depends(get_db)):
     etiqueta = db.query(models.Etiqueta).filter(models.Etiqueta.id == etiqueta_id, models.Etiqueta.cuenta_id == cuenta_id).first()
     if not etiqueta:
@@ -61,7 +62,7 @@ def eliminar_etiqueta(etiqueta_id: int, cuenta_id: int, db: Session = Depends(ge
 ################################################################
 # Endpoints para CabeceraChat
 ################################################################
-@app.post("/chats/", response_model=schemas.CabeceraChat)
+@app.post("/chats/", response_model=schemas.CabeceraChat, dependencies=[Depends(validate_api_key)])
 def crear_chat(chat: schemas.CabeceraChatCreate, db: Session = Depends(get_db)):
     db_chat = models.CabeceraChat(**chat.dict())
     db.add(db_chat)
@@ -69,12 +70,12 @@ def crear_chat(chat: schemas.CabeceraChatCreate, db: Session = Depends(get_db)):
     db.refresh(db_chat)
     return db_chat
 
-@app.get("/chats/cuenta/{cuenta_id}", response_model=List[schemas.CabeceraChat])
+@app.get("/chats/cuenta/{cuenta_id}", response_model=List[schemas.CabeceraChat], dependencies=[Depends(validate_api_key)])
 def listar_chats_por_cuenta(cuenta_id: int, db: Session = Depends(get_db)):
     return db.query(models.CabeceraChat).filter(models.CabeceraChat.cuenta_id == cuenta_id).all()
 
 # Buscar chat por numero_de_contacto
-@app.get("/chats/numero/{numero_de_contacto}", response_model=schemas.CabeceraChat)
+@app.get("/chats/numero/{numero_de_contacto}", response_model=schemas.CabeceraChat, dependencies=[Depends(validate_api_key)])
 def buscar_chat_por_numero(numero_de_contacto: str, db: Session = Depends(get_db)):
     chat = db.query(models.CabeceraChat).filter(models.CabeceraChat.numero_de_contacto == numero_de_contacto).first()
     if not chat:
@@ -85,7 +86,7 @@ def buscar_chat_por_numero(numero_de_contacto: str, db: Session = Depends(get_db
 ################################################################
 # Endpoints para ChatEtiqueta
 ################################################################
-@app.post("/chat-etiquetas/", response_model=schemas.ChatEtiqueta)
+@app.post("/chat-etiquetas/", response_model=schemas.ChatEtiqueta, dependencies=[Depends(validate_api_key)])
 def asignar_etiqueta_a_chat(chat_etiqueta: schemas.ChatEtiquetaCreate, db: Session = Depends(get_db)):
     db_chat_etiqueta = models.ChatEtiqueta(**chat_etiqueta.dict())
     db.add(db_chat_etiqueta)
@@ -93,7 +94,7 @@ def asignar_etiqueta_a_chat(chat_etiqueta: schemas.ChatEtiquetaCreate, db: Sessi
     db.refresh(db_chat_etiqueta)
     return db_chat_etiqueta
 
-@app.delete("/chat-etiquetas/{chat_id}/{etiqueta_id}/{cuenta_id}")
+@app.delete("/chat-etiquetas/{chat_id}/{etiqueta_id}/{cuenta_id}", dependencies=[Depends(validate_api_key)])
 def eliminar_etiqueta_de_chat(chat_id: int, etiqueta_id: int, cuenta_id: int, db: Session = Depends(get_db)):
     db_chat_etiqueta = db.query(models.ChatEtiqueta).filter(
         models.ChatEtiqueta.chat_id == chat_id,
@@ -106,7 +107,7 @@ def eliminar_etiqueta_de_chat(chat_id: int, etiqueta_id: int, cuenta_id: int, db
     db.commit()
     return {"mensaje": "Etiqueta removida del chat correctamente"}
 
-@app.get("/chat-etiquetas/chat/{chat_id}", response_model=List[schemas.Etiqueta])
+@app.get("/chat-etiquetas/chat/{chat_id}", response_model=List[schemas.Etiqueta], dependencies=[Depends(validate_api_key)])
 def obtener_etiquetas_de_chat(chat_id: int, db: Session = Depends(get_db)):
     chat = db.query(models.CabeceraChat).filter(models.CabeceraChat.id == chat_id).first()
     if not chat:
