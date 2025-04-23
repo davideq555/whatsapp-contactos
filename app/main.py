@@ -108,19 +108,6 @@ def asignar_etiqueta_a_chat(chat_etiqueta: schemas.ChatEtiquetaCreate, db: Sessi
     db.refresh(db_chat_etiqueta)
     return db_chat_etiqueta
 
-@app.delete("/chat-etiquetas/{chat_id}/{etiqueta_id}/{cuenta_id}", dependencies=[Depends(validate_api_key)])
-def eliminar_etiqueta_de_chat(chat_id: int, etiqueta_id: int, cuenta_id: int, db: Session = Depends(get_db)):
-    db_chat_etiqueta = db.query(models.ChatEtiqueta).filter(
-        models.ChatEtiqueta.chat_id == chat_id,
-        models.ChatEtiqueta.etiqueta_id == etiqueta_id,
-        models.ChatEtiqueta.cuenta_id == cuenta_id
-    ).first()
-    if not db_chat_etiqueta:
-        raise HTTPException(status_code=404, detail="Relación chat-etiqueta no encontrada")
-    db.delete(db_chat_etiqueta)
-    db.commit()
-    return {"mensaje": "Etiqueta removida del chat correctamente"}
-
 @app.delete("/chat-etiquetas/{numero_de_contacto}/{etiqueta_id}/{cuenta_id}", dependencies=[Depends(validate_api_key)])
 def eliminar_etiqueta_de_chat_por_numero(
     numero_de_contacto: str,
