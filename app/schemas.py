@@ -24,7 +24,9 @@ class EtiquetaBase(BaseModel):
     nombre: str
     color: Optional[str]
     cuenta_id: int
-    id: int
+
+    class Config:
+        from_attributes = True
 
 class EtiquetaCreate(EtiquetaBase):
     pass
@@ -59,9 +61,22 @@ class ChatEtiquetaBase(BaseModel):
     etiqueta_id: int
     cuenta_id: int
 
+    class Config:
+        from_attributes = True
+
 class ChatEtiquetaCreate(ChatEtiquetaBase):
     pass
 
-class ChatEtiqueta(ChatEtiquetaBase):
+class ChatEtiqueta(ChatEtiquetaBase):    
+    etiqueta: Etiqueta  # Incluye los datos de la etiqueta relacionada
+
     class Config:
-        from_attributes = True 
+        from_attributes = True
+
+# Esquemas para ChatResponse
+class ChatResponse(BaseModel):
+    mensaje: str
+    chat: CabeceraChat
+
+    class Config:
+        from_attributes = True
