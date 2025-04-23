@@ -1,0 +1,52 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+
+# Entornos virtuales
+env/
+venv/
+.venv/
+
+# Archivos de configuración sensibles
+.env
+.env.*
+
+# Configuración de IDEs
+.vscode/
+.idea/
+
+# Archivos de logs
+*.log
+*.pot
+*.py[co]
+*.~ 
+*.swp
+*.swo
+*.bak
+
+# Alembic
+alembic/versions/*.pyc
+alembic/versions/*.pyo
+
+# Archivos de caché
+.cache/
+*.egg-info/
+dist/
+build/
+
+# Archivos de Docker (si usas Docker)
+docker-compose.override.yml
+*.dockerfile
+
+# Archivos de pruebas
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
