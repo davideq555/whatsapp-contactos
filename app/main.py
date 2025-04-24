@@ -39,6 +39,12 @@ def buscar_cuenta_por_instancia(instancia_evolution: str, db: Session = Depends(
 ################################################################
 @app.post("/etiquetas/", response_model=schemas.Etiqueta, dependencies=[Depends(validate_api_key)])
 def crear_etiqueta(etiqueta: schemas.EtiquetaCreate, db: Session = Depends(get_db)):
+    # Verificar si la cuenta existe
+    cuenta = db.query(models.Cuenta).filter(models.Cuenta.id == etiqueta.cuenta_id).first()
+    if not cuenta:
+        raise HTTPException(status_code=404, detail="Cuenta no encontrada")
+
+    # Crear la etiqueta
     db_etiqueta = models.Etiqueta(**etiqueta.dict())
     db.add(db_etiqueta)
     db.commit()

@@ -40,6 +40,7 @@ Crea un archivo .env en la raíz del proyecto con el siguiente contenido (ajusta
 
    ```
    DATABASE_URL=postgresql://usuario:contraseña@localhost/nombre_base_datos
+   API_KEY=tu_contraseña_segura
    ```
 
 4. Realiza las migraciones de la base de datos:

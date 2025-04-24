@@ -24,6 +24,7 @@ class EtiquetaBase(BaseModel):
     nombre: str
     color: Optional[str]
     cuenta_id: int
+    id: int
 
     class Config:
         from_attributes = True
