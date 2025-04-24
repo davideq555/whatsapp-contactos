@@ -121,6 +121,17 @@ def listar_chats_por_cuenta(cuenta_id: int, db: Session = Depends(get_db)):
 ################################################################
 @app.post("/chat-etiquetas/", response_model=schemas.ChatEtiqueta, dependencies=[Depends(validate_api_key)])
 def asignar_etiqueta_a_chat(chat_etiqueta: schemas.ChatEtiquetaCreate, db: Session = Depends(get_db)):
+    # Verificar si ya existe la relación en ChatEtiqueta
+    existente = db.query(models.ChatEtiqueta).filter(
+        models.ChatEtiqueta.chat_id == chat_etiqueta.chat_id,
+        models.ChatEtiqueta.etiqueta_id == chat_etiqueta.etiqueta_id,
+        models.ChatEtiqueta.cuenta_id == chat_etiqueta.cuenta_id
+    ).first()
+
+    if existente:
+        raise HTTPException(status_code=400, detail="La etiqueta ya está asociada a este chat")
+
+    # Crear la relación en ChatEtiqueta
     db_chat_etiqueta = models.ChatEtiqueta(**chat_etiqueta.dict())
     db.add(db_chat_etiqueta)
     db.commit()
