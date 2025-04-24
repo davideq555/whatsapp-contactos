@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, ForeignKeyConstraint, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from .database import Base
 from datetime import datetime
@@ -55,9 +55,17 @@ class ChatEtiqueta(Base):
     __tablename__ = "chat_etiqueta"
 
     chat_id = Column(Integer, ForeignKey("cabecera_chat.id"), primary_key=True)
-    etiqueta_id = Column(Integer, ForeignKey("etiqueta.id"), primary_key=True)
-    cuenta_id = Column(Integer, ForeignKey("cuenta.id"), primary_key=True)
+    etiqueta_id = Column(Integer, primary_key=True)
+    cuenta_id = Column(Integer, primary_key=True)
 
+    # Clave foránea compuesta hacia Etiqueta
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['etiqueta_id', 'cuenta_id'],
+            ['etiqueta.id', 'etiqueta.cuenta_id']
+        ),
+    )
+    
     # Relaciones
     chat = relationship("CabeceraChat", back_populates="etiquetas")
     etiqueta = relationship("Etiqueta", back_populates="chats")
