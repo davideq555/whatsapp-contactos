@@ -81,3 +81,11 @@ class ChatResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# Esquemas para EtiquetaResponse
+class EtiquetaResponse(BaseModel):
+    mensaje: str
+    etiqueta: Etiqueta
+
+    class Config:
+        from_attributes = True

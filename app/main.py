@@ -72,15 +72,18 @@ def eliminar_etiqueta(etiqueta_id: int, cuenta_id: int, db: Session = Depends(ge
     return {"mensaje": "Etiqueta eliminada correctamente"}
 
 # Obtener detalle de etiqueta en cuenta
-@app.get("/etiquetas/{etiqueta_id}/{cuenta_id}", response_model=schemas.Etiqueta, dependencies=[Depends(validate_api_key)])
+@app.get("/etiquetas/{etiqueta_id}/{cuenta_id}", response_model=schemas.EtiquetaResponse, dependencies=[Depends(validate_api_key)])
 def obtener_etiqueta(etiqueta_id: int, cuenta_id: int, db: Session = Depends(get_db)):
     etiqueta = db.query(models.Etiqueta).filter(
         models.Etiqueta.id == etiqueta_id,
         models.Etiqueta.cuenta_id == cuenta_id
     ).first()
     if not etiqueta:
-        raise HTTPException(status_code=404, detail="Etiqueta no encontrada")
-    return etiqueta
+        return {"mensaje": "Etiqueta no encontrada", "etiqueta": None}
+    return {
+        "mensaje": "Etiqueta encontrada",
+        "etiqueta": schemas.Etiqueta.from_orm(etiqueta)
+    }
 
 ################################################################
 # Endpoints para CabeceraChat
