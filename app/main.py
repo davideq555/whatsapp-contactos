@@ -157,8 +157,8 @@ def obtener_etiquetas_de_chat(numero_de_contacto: str, cuenta_id: int, db: Sessi
         models.CabeceraChat.numero_de_contacto == numero_de_contacto,
         models.CabeceraChat.cuenta_id == cuenta_id
     ).first()
-    if not chat:
-        return {"mensaje": "No se encontró el chat"}
+    if not chat:    
+        return []
     etiquetas = db.query(models.Etiqueta).join(models.ChatEtiqueta).filter(
         models.ChatEtiqueta.chat_id == chat.id
     ).all()
