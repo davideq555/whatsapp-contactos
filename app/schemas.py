@@ -85,7 +85,7 @@ class ChatResponse(BaseModel):
 # Esquemas para EtiquetaResponse
 class EtiquetaResponse(BaseModel):
     mensaje: str
-    etiqueta: Etiqueta
+    etiqueta: Optional[Etiqueta] = None
 
     class Config:
         from_attributes = True
