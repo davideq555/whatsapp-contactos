@@ -180,19 +180,18 @@ def obtener_etiquetas_de_chat(chat_id: int, db: Session = Depends(get_db)):
     ).all()
     return etiquetas 
 
-# Obtiene etiquetas de un chat específico usando el numero_de_contacto y cuenta_id
-@app.get("/chat-etiquetas/chat/{numero_de_contacto}/{cuenta_id}", response_model=List[schemas.Etiqueta], dependencies=[Depends(validate_api_key)])
+@app.get("/chat-etiquetas/chat/{numero_de_contacto}/{cuenta_id}", response_model=dict, dependencies=[Depends(validate_api_key)])
 def obtener_etiquetas_de_chat(numero_de_contacto: str, cuenta_id: int, db: Session = Depends(get_db)):
     chat = db.query(models.CabeceraChat).filter(
         models.CabeceraChat.numero_de_contacto == numero_de_contacto,
         models.CabeceraChat.cuenta_id == cuenta_id
     ).first()
-    if not chat:    
-        return []
+    if not chat:
+        return { "etiquetas": [] }
     etiquetas = db.query(models.Etiqueta).join(models.ChatEtiqueta).filter(
         models.ChatEtiqueta.chat_id == chat.id
     ).all()
-    return etiquetas
+    return { "etiquetas": [schemas.Etiqueta.from_orm(etiqueta) for etiqueta in etiquetas] }
 
 @app.post("/chats/etiquetas/", response_model=schemas.ChatEtiqueta, dependencies=[Depends(validate_api_key)])
 def crear_chat_etiqueta(
