@@ -12,6 +12,9 @@ class Cuenta(Base):
     numero_corporativo = Column(String)
     numero_personal = Column(String)
     nombre_personal = Column(String)
+    creado_at = Column(DateTime, default=datetime.now)
+    eliminado = Column(Boolean, default=False)
+    total_mensajes_enviados = Column(Integer, default=0)
 
     # Relaciones
     cabeceras_chat = relationship("CabeceraChat", back_populates="cuenta")

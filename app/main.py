@@ -34,6 +34,17 @@ def buscar_cuenta_por_instancia(instancia_evolution: str, db: Session = Depends(
         raise HTTPException(status_code=404, detail="Cuenta no encontrada")
     return cuenta
 
+# Sumar mensaje enviado a cuenta
+@app.post("/cuentas/sumar-mensaje-enviado/{cuenta_id}", dependencies=[Depends(validate_api_key)])
+def sumar_mensaje_enviado(cuenta_id: int, db: Session = Depends(get_db)):
+    cuenta = db.query(models.Cuenta).filter(models.Cuenta.id == cuenta_id).first()
+    if not cuenta:
+        raise HTTPException(status_code=404, detail="Cuenta no encontrada")
+    cuenta.total_mensajes_enviados += 1
+    db.commit()
+    db.refresh(cuenta)
+    return {"mensaje": "Mensaje enviado sumado correctamente", "total_mensajes_enviados": cuenta.total_mensajes_enviados}
+
 ################################################################
 # Endpoints para Etiquetas
 ################################################################
@@ -115,6 +126,58 @@ def crear_o_obtener_chat(chat: schemas.CabeceraChatCreate, db: Session = Depends
 def listar_chats_por_cuenta(cuenta_id: int, db: Session = Depends(get_db)):
     return db.query(models.CabeceraChat).filter(models.CabeceraChat.cuenta_id == cuenta_id).all()
 
+# Crear ruta para sumar intentos malintencionados en la cabecera del chat
+@app.post("/chats/intento-malicioso/", dependencies=[Depends(validate_api_key)])
+def sumar_intento_malintencionado(numero_de_contacto: str, cuenta_id: int, db: Session = Depends(get_db)):
+    # Buscar el chat por numero_de_contacto y cuenta_id
+    chat = db.query(models.CabeceraChat).filter(
+        models.CabeceraChat.numero_de_contacto == numero_de_contacto,
+        models.CabeceraChat.cuenta_id == cuenta_id
+    ).first()
+    # Si no existe, crear el chat
+    if not chat:
+        chat = models.CabeceraChat(
+            numero_de_contacto=numero_de_contacto,
+            cuenta_id=cuenta_id
+        )
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+
+    # Sumar un intento malintencionado
+    chat.intentos_maliciosos += 1
+    db.commit()
+    db.refresh(chat)
+
+    return {
+        "mensaje": "Intento malintencionado sumado correctamente",
+        "total_intentos": chat.intentos_maliciosos
+    }
+
+# Reiniciar contador de intentos malintencionados
+@app.post("/chats/reiniciar-intentos/", dependencies=[Depends(validate_api_key)])
+def reiniciar_intentos_malintencionados(numero_de_contacto: str, cuenta_id: int, db: Session = Depends(get_db)):
+    # Buscar el chat por numero_de_contacto y cuenta_id
+    chat = db.query(models.CabeceraChat).filter(
+        models.CabeceraChat.numero_de_contacto == numero_de_contacto,
+        models.CabeceraChat.cuenta_id == cuenta_id
+    ).first()
+
+    if not chat:
+        return {
+            "mensaje": "Chat no encontrado",
+            "total_intentos": 0
+        }
+
+    # Reiniciar el contador de intentos malintencionados
+    chat.intentos_maliciosos = 0
+    db.commit()
+    db.refresh(chat)
+
+    return {
+        "mensaje": "Contador de intentos malintencionados reiniciado correctamente",
+        "total_intentos": chat.intentos_maliciosos
+    }
 
 ################################################################
 # Endpoints para ChatEtiqueta
