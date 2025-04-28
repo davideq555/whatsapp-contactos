@@ -40,7 +40,7 @@ def sumar_mensaje_enviado(cuenta_id: int, db: Session = Depends(get_db)):
     cuenta = db.query(models.Cuenta).filter(models.Cuenta.id == cuenta_id).first()
     if not cuenta:
         raise HTTPException(status_code=404, detail="Cuenta no encontrada")
-    cuenta.total_mensajes_enviados += 1
+    cuenta.total_mensajes_enviados = (cuenta.total_mensajes_enviados or 0) + 1
     db.commit()
     db.refresh(cuenta)
     return {"mensaje": "Mensaje enviado sumado correctamente", "total_mensajes_enviados": cuenta.total_mensajes_enviados}
